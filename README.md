@@ -1,3 +1,41 @@
+# cookiecutter-neopy
+
+Hi there!
+I'm an amateur Python developer, and I love [`tyrannosaurus`](https://github.com/dmyersturnbull/tyrannosaurus), 
+and equally love [`cookiecutter-hypermodern-python`](https://cookiecutter-hypermodern-python.readthedocs.io/en/2022.6.3.post1/).
+However, in my extended use of both, I noticed some shortcomings that I wanted to address.
+
+1. `tyrannosaurus` uses its own templating engine, but it unfortunately is very buggy and most of its exclusive features (like sync) are poorly implemented. I wanted to use `cookiecutter`'s templating engine, which is much more robust and well-maintained.
+2. `tyrannosaurus` tries too hard to make testing into a monolith, which yields unintelligible test results. Even though I prefer tox over nox, I still chose to take `cookiecutter-hypermodern-python`'s approach of using nox, because it's much more flexible and easier to use.
+3. `tyrannosaurus` never seems to update its dependencies, and it's stuck on Python 3.8. I wanted to use Python 3.11 **exclusively** to make use of the increased performance and syntax features, and I wanted to use the latest versions of all the dependencies.
+4. `tyrannosaurus` has a lot of boilerplate code pre-included, mainly for capturing test data and retrieving assets. While this is a good idea. It doesn't help that half of it is wrong and fails its own type checks. 🙃 The boilerplate I chose to implement in my template is a lot lighter and only supplies things that EVERY project uses.
+5. `cookiecutter-hypermodern-python` is a great template, but it lacks the tooling for containerization and deployment with Docker like `tyrannosaurus` has. I wanted to add that to this template.
+6. `cookiecutter-hypermodern-python` also favors lower-level libraries like click over higher-level libraries like typer. I wanted to use typer, because it's a great library that makes it easy to build CLI applications.
+
+For all of these reasons, I decided to fork `cookiecutter-hypermodern-python` and make my own template, `cookiecutter-neopy`. I hope you enjoy it!
+
+## TODO
+
+- [x] Convert to Python 3.11
+- [x] Update dependencies
+- [x] Add settings.yml for GitHub Probot
+- [x] Add `typer`
+- [x] Add Dockerfile
+- [x] Add docker-compose.yml
+- [ ] Add GitHub Actions for publishing Docker image
+- [ ] Write typer boilerplate & tests
+- [ ] Write asset boilerplate & tests
+
+## Usage
+
+```console
+cookiecutter gh:regulad/cookiecutter-neopy --checkout=2023.8.4
+```
+
+The following segment of the README is the original README from `cookiecutter-hypermodern-python`.
+
+<hr/>
+
 # cookiecutter-hypermodern-python
 
 <!-- badges-begin -->

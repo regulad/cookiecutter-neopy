@@ -1,0 +1,93 @@
+# https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker/54763270#54763270
+
+FROM python:3.11.4-alpine3.18 AS base
+
+# We use a multi-stage build to reduce the size of the final image and to separate build and runtime dependencies
+FROM base AS BUILDER
+
+# --------------------------------------
+# ---------- Copy and compile ----------
+
+# Configure env variables for build/install
+# ENV no longer adds a layer in new Docker versions,
+# so we don't need to chain these in a single line
+ENV PYTHONFAULTHANDLER=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONHASHSEED=random
+ENV PIP_NO_CACHE_DIR=off
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
+ENV PIP_DEFAULT_TIMEOUT=120
+ENV POETRY_VERSION=1.5.1
+
+# Install system deps
+RUN pip install --upgrade pip \
+    && pip install "poetry==$POETRY_VERSION"
+
+# TODO: You can add any additional compiletime system dependencies here. Make sure you use apk add --no-cache!
+
+# Copy only requirements to cache them in docker layer
+WORKDIR /code
+COPY poetry.lock pyproject.toml /code/
+
+# Install with poetry
+# pip install would probably work, too, but we'd have to make sure it's a recent enough pip
+# Don't bother creating a virtual env -- significant performance increase
+RUN poetry config virtualenvs.create false \
+  && poetry install --no-interaction --no-ansi --only main
+
+# Copy everything (code) to our workdir
+# Our .dockerignore file should be good enough that we don't have extra stuff
+COPY . /code
+
+# Build the package
+RUN poetry build
+
+# --------------------------------------
+# ---------- Install & run! ------------
+FROM base AS RUNNER
+
+# --------------------------------------
+# ------------- Set labels -------------
+
+# See https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL name="{{cookiecutter.project_name}}"
+LABEL version="{{cookiecutter.version}}"
+LABEL vendor="{{cookiecutter.author}}"
+LABEL org.opencontainers.image.title="{{cookiecutter.project_name}}"
+LABEL org.opencontainers.image.version="{{cookiecutter.version}}"
+LABEL org.opencontainers.image.url="https://github.com/{{cookiecutter.github_user}}/{{cookiecutter.project_name}}"
+LABEL org.opencontainers.image.documentation="https://{{cookiecutter.project_name}}.readthedocs.io"
+
+ENV PYTHONFAULTHANDLER=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONHASHSEED=random
+ENV TZ=America/New_York
+
+ARG USERNAME={{cookiecutter.package_name}}
+ARG USER_UID=1008
+ARG USER_GID=$USER_UID
+
+RUN addgroup -g $USER_GID -S $USERNAME \
+    && adduser -u $USER_UID -G $USERNAME -D -S $USERNAME \
+    && apk add -U tzdata --no-cache
+
+
+# TODO: You can add any additional runtime system dependencies here. Make sure you use apk add --no-cache!
+
+# Switch to non-root user (for security)
+# This makes dockerfile_lint complain, but it's fine
+# dockerfile_lint - ignore
+USER $USERNAME
+
+# Install the package in the user space
+COPY --from=BUILDER /code/dist/{{cookiecutter.package_name}}-*.whl /tmp/
+RUN pip install --user /tmp/{{cookiecutter.package_name}}-*.whl
+
+# --------------------------------------
+# -------------- Run it! ---------------
+
+# Now do something!
+CMD ["/home/{{cookiecutter.project_name}}/.local/bin/{{cookiecutter.project_name}}"]
+
+# or expose a port:
+# EXPOSE 443/tcp

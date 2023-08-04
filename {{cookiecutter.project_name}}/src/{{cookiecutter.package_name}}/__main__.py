@@ -6,6 +6,7 @@ import click
 @click.version_option()
 def main() -> None:
     """{{cookiecutter.friendly_name}}."""
+    click.echo("Hello, world!")
 
 
 if __name__ == "__main__":

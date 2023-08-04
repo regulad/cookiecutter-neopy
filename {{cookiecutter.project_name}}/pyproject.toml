@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "{{cookiecutter.project_name}}"
 version = "{{cookiecutter.version}}"
-description = "{{cookiecutter.friendly_name}}"
+description = "{{cookiecutter.description}}"
 authors = ["{{cookiecutter.author}} <{{cookiecutter.email}}>"]
 license = "{{cookiecutter.license}}"
 readme = "README.md"
@@ -21,8 +21,10 @@ classifiers = [
 Changelog = "https://github.com/{{cookiecutter.github_user}}/{{cookiecutter.project_name}}/releases"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-click = ">=8.0.1"
+python = "^3.11"
+typer = {version = "^0.9.0", extras = ["all"]}
+typing-extensions = "^4.7.1"
+importlib-metadata = "^6.8.0"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
@@ -64,6 +66,10 @@ source = ["{{cookiecutter.package_name}}", "tests"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 100
+
+[tool.black]
+line-length = {{cookiecutter.line_length}}
+target-version = ["py311"]
 
 [tool.isort]
 profile = "black"
