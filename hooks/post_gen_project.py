@@ -59,7 +59,6 @@ def confirm_nox_install():
                 "--error-on-missing-interpreters",
                 "--error-on-external-run",
                 "--non-interactive",
-                "--verbose",
             ],
             check=True,
             # capture_output=True,

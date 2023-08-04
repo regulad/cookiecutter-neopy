@@ -1,4 +1,4 @@
-"""CLI for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Metadata for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -49,26 +49,43 @@ SOFTWARE.{%- endif %}
 """
 from __future__ import annotations
 
-import json
-
-import typer
-
-from ._assets import RESOURCES
+import logging
 
 
-cli = typer.Typer()
+try:
+    from importlib.metadata import PackageMetadata
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import metadata as __load
+except ImportError:  # pragma: no cover
+    from importlib_metadata import PackageMetadata  # type: ignore
+    from importlib_metadata import PackageNotFoundError  # type: ignore
+    from importlib_metadata import metadata as __load  # type: ignore
 
 
-@cli.command()
-def main() -> None:
-    data = RESOURCES / "data.json"
-    with data.open() as json_fp:
-        parsed = json.load(json_fp)
-    status = parsed["status"]
-    print(typer.style(status, fg=typer.colors.GREEN, bold=True))
+logger = logging.getLogger(__package__)
+try:
+    metadata: PackageMetadata = __load(__package__)
+    __copyright__ = "Copyright {{ cookiecutter.copyright_year }}"
+    __uri__ = metadata["home-page"]
+    __title__ = metadata["name"]
+    __summary__ = metadata["summary"]
+    __license__ = metadata["license"]
+    __version__ = metadata["version"]
+    __author__ = metadata["author"]
+    __maintainer__ = metadata["maintainer"]
+    __contact__ = metadata["maintainer"]
+except PackageNotFoundError:  # pragma: no cover
+    logger.error(f"Could not load package metadata for {__package__}. Is it installed?")
 
 
-if __name__ == "__main__":
-    cli()
-
-__all__ = ("cli",)
+__all__ = (
+    "__copyright__",
+    "__uri__",
+    "__title__",
+    "__summary__",
+    "__license__",
+    "__version__",
+    "__author__",
+    "__maintainer__",
+    "__contact__",
+)

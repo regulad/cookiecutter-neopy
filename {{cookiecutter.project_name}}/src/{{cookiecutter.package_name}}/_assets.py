@@ -1,4 +1,4 @@
-"""CLI for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Asset utilities for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -49,26 +49,12 @@ SOFTWARE.{%- endif %}
 """
 from __future__ import annotations
 
-import json
-
-import typer
-
-from ._assets import RESOURCES
+from importlib.resources import files
 
 
-cli = typer.Typer()
+# The root of the package. This may not be a path if the package is installed, so just access the Traversable.
+PACKAGE = files(__package__)
+# If you use all of your files in a folder like `assets` or `resources` (recommended), use the following line.
+RESOURCES = PACKAGE / "resources"
 
-
-@cli.command()
-def main() -> None:
-    data = RESOURCES / "data.json"
-    with data.open() as json_fp:
-        parsed = json.load(json_fp)
-    status = parsed["status"]
-    print(typer.style(status, fg=typer.colors.GREEN, bold=True))
-
-
-if __name__ == "__main__":
-    cli()
-
-__all__ = ("cli",)
+__all__ = ("RESOURCES",)

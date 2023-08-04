@@ -23,10 +23,12 @@ For all of these reasons, I decided to fork `cookiecutter-hypermodern-python` an
 - [x] Add Dockerfile
 - [x] Add docker-compose.yml
 - [ ] Add GitHub Actions for publishing Docker image
-- [ ] Write typer boilerplate & tests
-- [ ] Write asset boilerplate & tests
+- [x] Write typer boilerplate & tests
+- [x] Write asset & metadata boilerplate & tests
 
 ## Usage
+
+All testing was done on cookiecutter 2.3.0 and Python 3.11.4.
 
 ```console
 cookiecutter gh:regulad/cookiecutter-neopy --checkout=2023.8.4
