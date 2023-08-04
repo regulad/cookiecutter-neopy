@@ -1,8 +1,16 @@
 # https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker/54763270#54763270
+# Copyright (c) 2023  Parker Wahle - Licensed under MIT License (do whatever you want)
 
 FROM python:3.11.4-alpine3.18 AS base
 
-# We use a multi-stage build to reduce the size of the final image and to separate build and runtime dependencies
+# In Python, the line between a compile-time and run-time dependency is blurry,
+# so we play it safe by installing everything
+RUN apk add -U tzdata --no-cache \
+    && apk add gcc musl-dev libffi-dev openssl-dev make git --no-cache \
+    && pip install --upgrade pip \
+# TODO: consider pinning these versions
+
+# We use a multi-stage build to reduce the size of the final image
 FROM base AS BUILDER
 
 # --------------------------------------
@@ -20,10 +28,7 @@ ENV PIP_DEFAULT_TIMEOUT=120
 ENV POETRY_VERSION=1.5.1
 
 # Install system deps
-RUN pip install --upgrade pip \
-    && pip install "poetry==$POETRY_VERSION"
-
-# TODO: You can add any additional compiletime system dependencies here. Make sure you use apk add --no-cache!
+RUN pip install "poetry==$POETRY_VERSION"
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /code
@@ -68,11 +73,7 @@ ARG USER_UID=1008
 ARG USER_GID=$USER_UID
 
 RUN addgroup -g $USER_GID -S $USERNAME \
-    && adduser -u $USER_UID -G $USERNAME -D -S $USERNAME \
-    && apk add -U tzdata --no-cache
-
-
-# TODO: You can add any additional runtime system dependencies here. Make sure you use apk add --no-cache!
+    && adduser -u $USER_UID -G $USERNAME -D -S $USERNAME
 
 # Switch to non-root user (for security)
 # This makes dockerfile_lint complain, but it's fine

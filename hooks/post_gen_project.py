@@ -81,10 +81,8 @@ def print_notices():
     print("\t   https://cli.github.com/")
     print("\t2. Install probot settings into your GitHub account to enable settings.yml.")
     print("\t   https://probot.github.io/apps/settings/")
-    print("\t3. Install pre-commit ci into your GitHub account to enable pre-commit hooks.")
-    print("\t   https://pre-commit.ci/")
+    print("\t3. Your first CI runs will fail. This is normal. Follow all of the directions and then rerun them.")
     print("Follow the rest of the instructions from cookiecutter-hypermodern-python once you have done the above.")
-    print("You can skip manually creating a repository if you already used gh.")
     print("https://cookiecutter-hypermodern-python.readthedocs.io/en/2022.6.3.post1/quickstart.html#running")
 
 

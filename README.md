@@ -22,7 +22,7 @@ For all of these reasons, I decided to fork `cookiecutter-hypermodern-python` an
 - [x] Add `typer`
 - [x] Add Dockerfile
 - [x] Add docker-compose.yml
-- [ ] Add GitHub Actions for publishing Docker image
+- [x] Add GitHub Actions for publishing Docker image
 - [x] Write typer boilerplate & tests
 - [x] Write asset & metadata boilerplate & tests
 

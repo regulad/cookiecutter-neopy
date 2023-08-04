@@ -68,7 +68,7 @@ def main() -> None:
     print(typer.style(status, fg=typer.colors.GREEN, bold=True))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     cli()
 
 __all__ = ("cli",)
