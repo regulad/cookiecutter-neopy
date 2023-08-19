@@ -1,4 +1,10 @@
-"""Nox sessions."""
+"""Nox sessions."""  # noqa: E501, B950
+from __future__ import annotations
+
+# fmt: off
+# flake8: noqa
+# isort: skip_file
+
 import os
 import shlex
 import shutil
