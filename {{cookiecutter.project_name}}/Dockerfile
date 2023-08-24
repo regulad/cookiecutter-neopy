@@ -6,15 +6,13 @@ FROM python:3.11.4-alpine3.18 AS base
 # In Python, the line between a compile-time and run-time dependency is blurry,
 # so we play it safe by installing everything
 RUN apk add -U tzdata --no-cache \
-    && apk add gcc musl-dev libffi-dev openssl-dev make git --no-cache \
-    && pip install --upgrade pip \
-# TODO: consider pinning these versions
-
-# We use a multi-stage build to reduce the size of the final image
-FROM base AS BUILDER
+    && apk add gcc musl-dev libffi-dev openssl-dev make git curl --no-cache \
+    && pip install --upgrade pip
 
 # --------------------------------------
 # ---------- Copy and compile ----------
+# We use a multi-stage build to reduce the size of the final image
+FROM base AS builder
 
 # Configure env variables for build/install
 # ENV no longer adds a layer in new Docker versions,
@@ -49,10 +47,9 @@ RUN poetry build
 
 # --------------------------------------
 # ---------- Install & run! ------------
-FROM base AS RUNNER
+FROM base AS runner
 
-# --------------------------------------
-# ------------- Set labels -------------
+# Set labels
 
 # See https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL name="{{cookiecutter.project_name}}"
@@ -81,14 +78,11 @@ RUN addgroup -g $USER_GID -S $USERNAME \
 USER $USERNAME
 
 # Install the package in the user space
-COPY --from=BUILDER /code/dist/{{cookiecutter.package_name}}-*.whl /tmp/
+COPY --from=builder /code/dist/{{cookiecutter.package_name}}-*.whl /tmp/
 RUN pip install --user /tmp/{{cookiecutter.package_name}}-*.whl
-
-# --------------------------------------
-# -------------- Run it! ---------------
 
 # Now do something!
 CMD ["/home/{{cookiecutter.project_name}}/.local/bin/{{cookiecutter.project_name}}"]
 
 # or expose a port:
-# EXPOSE 443/tcp
+# EXPOSE 8080/tcp

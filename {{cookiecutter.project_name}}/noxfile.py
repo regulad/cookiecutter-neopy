@@ -39,6 +39,7 @@ nox.options.sessions = (
     "typeguard",
     "xdoctest",
     "docs-build",
+    "pyinstaller",
 )
 
 
@@ -240,3 +241,26 @@ def docs(session: Session) -> None:
         shutil.rmtree(build_dir)
 
     session.run("sphinx-autobuild", *args)
+
+
+@session(python=python_versions[0])
+def pyinstaller(session: Session) -> None:
+    """Build the executable."""
+    session.install(".")
+    session.install("pyinstaller")
+
+    args: list[str] = []
+
+    args.append("--name")
+    args.append(package)
+
+    args.append("--collect-all")
+    args.append(package)
+
+    args.append("--onefile")
+
+    args.append("--clean")
+
+    args.append("--noconfirm")
+
+    session.run("pyinstaller", *args, str(Path("src", "launcher.py")))

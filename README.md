@@ -88,7 +88,15 @@ The following segment of the README is the original README from `cookiecutter-hy
 ## Usage
 
 ```console
-cookiecutter gh:cjolowicz/cookiecutter-hypermodern-python --checkout=2022.6.3
+cookiecutter gh:cjolowicz/cookiecutter-hypermodern-python --checkout=2022.8.23
+```
+
+Special branches in the `frameworks` folder are available for some Python frameworks like FastAPI, Discord.py, and more. Check GitHub to see if there's a branch for your framework of choice.
+
+These special templates also carry the opinionated nature of the base template, so you can expect the same quality of code and documentation.
+
+```console
+cookiecutter gh:cjolowicz/cookiecutter-hypermodern-python --checkout=frameworks/fastapi
 ```
 
 ## Features

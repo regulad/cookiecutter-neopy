@@ -25,7 +25,7 @@ def git_init():
     """
     Initializes the repository with git.
     """
-    subprocess.run(["git", "init"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
+    subprocess.run(["git", "init", "-q", "-b", "master"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
     subprocess.run(["git", "add", "."], check=True, capture_output=True, stdin=subprocess.DEVNULL)
     subprocess.run(["git", "commit", "-m", "initial commit"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
 

@@ -3,6 +3,7 @@
   "package_name": "{{ cookiecutter.project_name.replace('-', '_') }}",
   "friendly_name": "{{ cookiecutter.project_name.replace('-', ' ').title() }}",
   "description": "{{ cookiecutter.friendly_name }}",
+  "environ_prefix": "{{ cookiecutter.project_name.upper() }}_",
   "author": "Parker Wahle",
   "email": "regulad@regulad.xyz",
   "github_user": "regulad",

@@ -21,7 +21,7 @@ classifiers = [
 Changelog = "https://github.com/{{cookiecutter.github_user}}/{{cookiecutter.project_name}}/releases"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11,<3.13"  # 3.13 is planned to make sweeping changes
 typer = {version = "^0.9.0", extras = ["all"]}
 typing-extensions = "^4.7.1"
 importlib-metadata = "^6.8.0"
@@ -54,6 +54,9 @@ myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.scripts]
 {{cookiecutter.project_name}} = "{{cookiecutter.package_name}}.__main__:main"
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^5.13.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
