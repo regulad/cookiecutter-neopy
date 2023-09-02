@@ -1,4 +1,4 @@
-"""Bootstrap code for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Prometheus tooling & instrumentation for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -47,18 +47,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.{%- endif %}
 """  # noqa: E501, B950
-
 from __future__ import annotations
 
-from .cli import cli
+import prometheus_client
+import uvicorn
+from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+from uvicorn import Config
+
+from .config import validate_bind_port
+from .uvicorn import get_uvicorn_kwargs
 
 
-def main() -> None:
-    """Run the CLI."""
-    cli()
+def create_prometheus_app(fastapi_app: FastAPI, prometheus_server_host: str, prometheus_server_port: int) -> Config:
+    """Creates the Prometheus app and returns a Uvicorn config for it."""
+    validate_bind_port(port=prometheus_server_port)
+    prometheus_registry = prometheus_client.CollectorRegistry()
+    prometheus_fastapi_instrumentator = Instrumentator(registry=prometheus_registry)
+    prometheus_fastapi_instrumentator.instrument(fastapi_app)
+    prometheus_app = prometheus_client.make_asgi_app(registry=prometheus_registry)
+    prometheus_uvicorn_kwargs = get_uvicorn_kwargs(host=prometheus_server_host)
+    prometheus_uvicorn_config = uvicorn.Config(
+        app=prometheus_app,
+        port=prometheus_server_port,
+        workers=1,
+        **prometheus_uvicorn_kwargs,
+    )
+    return prometheus_uvicorn_config
 
 
-if __name__ == "__main__":  # pragma: no cover
-    cli()
-
-__all__ = ("cli",)
+__all__ = ("create_prometheus_app",)

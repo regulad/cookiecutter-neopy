@@ -1,4 +1,6 @@
-# cookiecutter-neopy
+# cookiecutter-neopy FastAPI w/ Postgres via SQLAlchemy
+
+This is a framework branch of `cookiecutter-neopy` that includes FastAPI with Postgres via SQLAlchemy.
 
 Hi there!
 I'm an amateur Python developer, and I love [`tyrannosaurus`](https://github.com/dmyersturnbull/tyrannosaurus), 

@@ -1,7 +1,227 @@
 version: "3.8"
+# Everything below this line should be left as-is when deploying this application! Tread lightly!
+# If you want to make changes to configuration, do so in docker-compose.override.yml or .env
+# ==================================================================================================
 services:
   # If you have any databases or other services that your application depends on, add them here.
   # You should also add a 'depend' clause to your application service so that it doesn't start until the other services are ready.
+  postgres:
+    image: postgres:15.4-bookworm
+    hostname: &pghost "postgres"
+    restart: unless-stopped
+    read_only: true
+    environment:
+      PGDATA: &pgdata "/var/lib/postgresql/data"
+      POSTGRES_PASSWORD: &pgpass {{ "${POSTGRES_PASSWORD:-" + cookiecutter.package_name + "}" }}
+      POSTGRES_USER: &pguser {{ "\"" + cookiecutter.package_name + "\"" }}
+      POSTGRES_DB: &pgdb {{ "\"" + cookiecutter.package_name + "\"" }}
+      # Generic
+      TZ: &tz ${TZ:-America/New_York}
+      LANG: &lang ${LANG:-en_US.UTF-8}
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+      - type: volume
+        source: postgres
+        target: *pgdata
+    networks:
+      - default
+    ports:
+      - "5432:5432/tcp"
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
+  postgres_prometheus:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    hostname: "postgres_prometheus"
+    restart: unless-stopped
+    read_only: true
+    environment:
+      DATA_SOURCE_URI: *pghost
+      DATA_SOURCE_USER: *pguser
+      DATA_SOURCE_PASS: *pgpass
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M # https://www.rabbitmq.com/memory.html
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+      - type: volume
+        source: rabbitmq
+        target: /etc/rabbitmq
+    networks:
+      - default
+    ports: []
+    #      - "9187:9187/tcp"
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
+  rabbitmq:
+    image: rabbitmq:3.12.4-management-alpine
+    hostname: &mqhost "rabbitmq"
+    restart: unless-stopped
+    read_only: true
+    environment:
+      RABBITMQ_DEFAULT_USER: &mquser {{ "\"" + cookiecutter.package_name + "\"" }}
+      RABBITMQ_DEFAULT_PASS: &mqpass {{ "${RABBITMQ_DEFAULT_PASS:-" + cookiecutter.package_name + "}" }}
+      RABBITMQ_DEFAULT_VHOST: &mqvhost {{ "\"" + cookiecutter.package_name + "\"" }}
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M # https://www.rabbitmq.com/memory.html
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+      - type: volume
+        source: rabbitmq
+        target: /etc/rabbitmq
+    networks:
+      - default
+    ports:
+      - "5672:5672/tcp" # RabbitMQ TCP
+    #      - "15672:15672/tcp" # Management UI
+    #      - "15692:15692/tcp" # Prometheus TCP
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
+  redis:
+    image: redis:7.2.0-alpine3.18
+    hostname: &redishost "redis"
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    read_only: true
+    environment:
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M # https://www.rabbitmq.com/memory.html
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+      - type: volume
+        source: redis
+        target: /data
+    networks:
+      - default
+    ports:
+      - "6379:6379/tcp"
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    hostname: &promhost "prometheus"
+    restart: unless-stopped
+    read_only: true
+    environment:
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+      - type: volume
+        source: prometheus
+        target: /etc/prometheus
+      - type: bind
+        source: ./prometheus/prometheus.yml
+        read_only: true
+        target: /etc/prometheus/prometheus.yml
+    depends_on:
+      - rabbitmq
+      - postgres_prometheus
+      - {{cookiecutter.package_name}}
+      # redis prometheus support is only available in the enterprise version of redis (we use the community version)
+    networks:
+      - default
+    ports:
+      - "9090:9090/tcp"
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
   {{cookiecutter.package_name}}:
     image: ghcr.io/{{cookiecutter.github_user}}/{{cookiecutter.package_name}}:latest
     hostname: "{{cookiecutter.package_name}}" # Use this hostname with a reverse proxy like nginx attached to your network
@@ -25,16 +245,54 @@ services:
         target: /tmp
         tmpfs:
           size: 524300000 # 500MiB in bytes
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    ports:
+      - "8080:8080/tcp" # FastAPI
+    #      - "8000:8000/tcp"  # Prometheus
     environment:
-      - TZ=America/New_York # Set your timezone here
+      # Postgres
+      {{cookiecutter.environ_prefix}}POSTGRES_HOST: *pghost
+      {{cookiecutter.environ_prefix}}POSTGRES_PORT: "5432"
+      {{cookiecutter.environ_prefix}}POSTGRES_PASSWORD: *pgpass
+      {{cookiecutter.environ_prefix}}POSTGRES_USER: *pguser
+      {{cookiecutter.environ_prefix}}POSTGRES_DB: *pgdb
+      # RabbitMQ
+      {{cookiecutter.environ_prefix}}RABBITMQ_HOST: *mqhost
+      {{cookiecutter.environ_prefix}}RABBITMQ_PORT: "5672"
+      {{cookiecutter.environ_prefix}}RABBITMQ_USER: *mquser
+      {{cookiecutter.environ_prefix}}RABBITMQ_PASSWORD: *mqpass
+      {{cookiecutter.environ_prefix}}RABBITMQ_VHOST: *mqvhost
+      # Redis
+      {{cookiecutter.environ_prefix}}REDIS_HOST: *redishost
+      {{cookiecutter.environ_prefix}}REDIS_PORT: "6379"
+      # Prometheus
+      {{cookiecutter.environ_prefix}}PROMETHEUS_HOST: *promhost
+      {{cookiecutter.environ_prefix}}PROMETHEUS_PORT: "9090"
+      {{cookiecutter.environ_prefix}}PROMETHEUS_SERVER_PORT: "8000"
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
     networks:
       - default
     logging: # Don't allow the logs to grow indefinitely
       options:
         max-size: 10m # 10 megabytes
         max-file: "3" # 3 files
-    stdin_open: true # if you don't need stdin, remove this line
-    tty: true # if you don't need a psuedo-tty, remove this line
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
 networks:
   default:
     driver: bridge
+volumes:
+  postgres:
+    driver: local
+  rabbitmq:
+    driver: local
+  redis:
+    driver: local
+  prometheus:
+    driver: local

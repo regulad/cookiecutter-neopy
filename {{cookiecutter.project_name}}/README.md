@@ -54,6 +54,14 @@ _{{cookiecutter.friendly_name}}_ is free and open source software.
 If you encounter any problems,
 please [file an issue] along with a detailed description.
 
+## Libraries in use
+
+- [Strawberry GraphQL for FastAPI](https://strawberry.rocks/docs/integrations/fastapi]
+- [SQLModel](https://sqlmodel.tiangolo.com/)
+- [Alembic](https://alembic.sqlalchemy.org/en/latest/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Uvicorn](https://www.uvicorn.org/)
+
 ## Credits
 
 This project was generated from [@regulad]'s [neopy] template.

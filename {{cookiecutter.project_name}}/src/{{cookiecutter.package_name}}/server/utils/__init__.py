@@ -1,4 +1,4 @@
-"""Bootstrap code for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Server utilities for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -47,18 +47,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.{%- endif %}
 """  # noqa: E501, B950
-
 from __future__ import annotations
-
-from .cli import cli
-
-
-def main() -> None:
-    """Run the CLI."""
-    cli()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    cli()
-
-__all__ = ("cli",)

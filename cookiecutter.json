@@ -1,5 +1,5 @@
 {
-  "project_name": "cookiecut",
+  "project_name": "fastapipostgres",
   "package_name": "{{ cookiecutter.project_name.replace('-', '_') }}",
   "friendly_name": "{{ cookiecutter.project_name.replace('-', ' ').title() }}",
   "description": "{{ cookiecutter.friendly_name }}",
@@ -19,7 +19,7 @@
     "Development Status :: 6 - Mature",
     "Development Status :: 7 - Inactive"
   ],
-  "line_length": 100,
+  "line_length": 120,
   "enforce_checks_on_creation": false,
   "initialize_git": true
 }

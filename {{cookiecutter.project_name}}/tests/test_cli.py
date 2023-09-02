@@ -1,10 +1,9 @@
 """Test cases for the __main__ module."""
 
 import pytest
-from
 from typer.testing import CliRunner
 
-{{cookiecutter.package_name}}.__main__ import cli
+from {{cookiecutter.package_name}}.cli import cli
 
 
 @pytest.fixture
@@ -18,7 +17,7 @@ class TestCLI:
 
     def test_main_succeeds(self, runner: CliRunner) -> None:
         """Calls the default command and exits with a status code of zero."""
-        result = runner.invoke(cli)
+        result = runner.invoke(cli, "main")
         assert result.exit_code == 0
 
 

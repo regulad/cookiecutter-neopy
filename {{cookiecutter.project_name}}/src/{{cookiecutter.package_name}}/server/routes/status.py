@@ -1,4 +1,4 @@
-"""Bootstrap code for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Status routes for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -47,18 +47,51 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.{%- endif %}
 """  # noqa: E501, B950
-
 from __future__ import annotations
 
-from .cli import cli
+import datetime
+import math
+from typing import Annotated
+from typing import Any
+
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import Request
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..._metadata import __version__
+from ..depends.connections import get_sqlmodel_session
+from ..models.audit import AuditEvent
+from ..models.status import StatusReport
 
 
-def main() -> None:
-    """Run the CLI."""
-    cli()
+router = APIRouter()
 
 
-if __name__ == "__main__":  # pragma: no cover
-    cli()
+@router.get(
+    "/",
+    response_model=StatusReport,
+)
+async def status(
+    request: Request,
+    sqlmodel_session: Annotated[AsyncSession, Depends(get_sqlmodel_session)],
+) -> Any:  # pragma: no cover
+    # Cannot be tested: uses async session
+    # Get last audit event of startup
+    startup_event_id = request.app.state.id
+    recent_startup = select(AuditEvent).where(AuditEvent.id == startup_event_id)
+    startup_event: AuditEvent = (await sqlmodel_session.execute(recent_startup)).first()[0]  # type: ignore
+    startup_time = startup_event.timestamp
+    uptime = datetime.datetime.utcnow() - startup_time
+    uptime_seconds = uptime.total_seconds()
+    uptime_seconds_int = math.floor(uptime_seconds)
 
-__all__ = ("cli",)
+    return {
+        "status": "ok",
+        "version": __version__,
+        "uptime": uptime_seconds_int,
+    }
+
+
+__all__ = ("router",)

@@ -40,7 +40,7 @@ nox.options.sessions = (
     "typeguard",
     "xdoctest",
     "docs-build",
-    "pyinstaller",
+    # "pyinstaller",
 )
 
 
@@ -143,7 +143,7 @@ def precommit(session: Session) -> None:
         "pep8-naming",
         "pre-commit",
         "pre-commit-hooks",
-        "pyupgrade",
+        # "pyupgrade",
     )
     session.run("pre-commit", *args)
     if args and args[0] == "install":
@@ -162,20 +162,18 @@ def safety(session: Session) -> None:
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.install(".")
-    session.install("mypy", "pytest")
-    session.run("mypy", *args)
+    session.run_always("poetry", "install", external=True)
+    session.run("poetry", "run", "mypy", *args, external=True)
     if not session.posargs:
-        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+        session.run("poetry", "run", "mypy", f"--python-executable={sys.executable}", "noxfile.py", external=True)
 
 
 @session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
-    session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
+    session.run_always("poetry", "install", external=True)
     try:
-        session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
+        session.run("poetry", "run", "coverage", "run", "--parallel", "-m", "pytest", *session.posargs, external=True)
     finally:
         if session.interactive:
             session.notify("coverage", posargs=[])
@@ -197,9 +195,8 @@ def coverage(session: Session) -> None:
 @session(python=python_versions[0])
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
-    session.install(".")
-    session.install("pytest", "typeguard", "pygments")
-    session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
+    session.run_always("poetry", "install", external=True)
+    session.run("poetry", "run", "pytest", f"--typeguard-packages={package}", *session.posargs, external=True)
 
 
 @session(python=python_versions)

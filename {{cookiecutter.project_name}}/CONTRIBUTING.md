@@ -61,6 +61,15 @@ $ poetry run {{cookiecutter.project_name}}
 [nox]: https://nox.thea.codes/
 [nox-poetry]: https://nox-poetry.readthedocs.io/
 
+When changes to the database schema are made, you must generate a new migration file.
+
+```console
+$ cd src/{{cookiecutter.project_name}}/resources/almebic
+$ poetry run alembic revision --autogenerate -m "migration message"
+```
+
+Make sure to review the generated migration file before committing it.
+
 ## How to test the project
 
 Run the full test suite:

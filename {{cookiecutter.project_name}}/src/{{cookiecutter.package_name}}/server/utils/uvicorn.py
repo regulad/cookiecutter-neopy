@@ -1,4 +1,4 @@
-"""Bootstrap code for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
+"""Uvicorn utilities for {{ cookiecutter.friendly_name }} - {{ cookiecutter.description }}.
 
 {% if cookiecutter.license == 'Apache-2.0' -%}Copyright {{ cookiecutter.copyright_year }} {{ cookiecutter.author }}
 
@@ -47,18 +47,50 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.{%- endif %}
 """  # noqa: E501, B950
-
 from __future__ import annotations
 
-from .cli import cli
+from typing import Any
+
+import anyio
+import uvicorn
+from anyio import TASK_STATUS_IGNORED
+from anyio import Event
+from anyio.abc import TaskStatus
+from uvicorn import Config
+
+from ...utils.logging import get_log_level
 
 
-def main() -> None:
-    """Run the CLI."""
-    cli()
+async def uvicorn_serve(
+    config: Config,
+    shutdown_event: Event,
+    *,
+    task_status: TaskStatus[None] = TASK_STATUS_IGNORED,
+) -> None:  # pragma: no cover
+    """Serve a Uvicorn server."""
+    # Doesn't need to be covered by tests because of its simplicity
+    # + it's code that's already tested by Uvicorn
+    uvicorn_server = uvicorn.Server(config=config)
+    # Entire lifespan of the server is handled by serve, including startup & shutdown
+    # AnyIO does not support creating individual tasks that are not part of a task group
+    async with anyio.create_task_group() as task_group:
+        task_group.start_soon(uvicorn_server.serve)
+        while not uvicorn_server.started:
+            await anyio.sleep(0.01)
+        task_status.started()
+        # Uvicorn has entered the main loop, we can wait until we're told to shutdown
+        await shutdown_event.wait()
+        uvicorn_server.should_exit = True
+        # Wait for the task to exit
 
 
-if __name__ == "__main__":  # pragma: no cover
-    cli()
+def get_uvicorn_kwargs(host: str = "localhost") -> dict[str, Any]:
+    """Get the default keyword arguments for Uvicorn."""
+    return {
+        "log_config": None,
+        "log_level": get_log_level(),  # We want to receive things like the server startup message
+        "host": host,
+    }
 
-__all__ = ("cli",)
+
+__all__ = ("uvicorn_serve", "get_uvicorn_kwargs")

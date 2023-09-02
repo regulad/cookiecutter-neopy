@@ -1,12 +1,12 @@
 # https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker/54763270#54763270
 # Copyright (c) 2023  Parker Wahle - Licensed under MIT License (do whatever you want)
 
-FROM python:3.11.4-alpine3.18 AS base
+FROM python:3.11.5-alpine3.18 AS base
 
 # In Python, the line between a compile-time and run-time dependency is blurry,
 # so we play it safe by installing everything
 RUN apk add -U tzdata --no-cache \
-    && apk add gcc musl-dev libffi-dev openssl-dev make git curl --no-cache \
+    && apk add gcc musl-dev libffi-dev openssl-dev make git curl python3-dev libpq-dev --no-cache \
     && pip install --upgrade pip
 
 # --------------------------------------
@@ -79,8 +79,11 @@ USER $USERNAME
 COPY --from=builder /code/dist/{{cookiecutter.package_name}}-*.whl /tmp/
 RUN pip install --user /tmp/{{cookiecutter.package_name}}-*.whl
 
-# Now do something!
-CMD ["/home/{{cookiecutter.project_name}}/.local/bin/{{cookiecutter.project_name}}"]
+# Expose our server
+EXPOSE 8080/tcp
 
-# or expose a port:
-# EXPOSE 8080/tcp
+# And make sure nothing goes awry
+HEALTHCHECK --interval=5s --timeout=5s --retries=3 CMD curl --fail http://localhost:8080/status/ || exit 1
+
+# Now do something!
+CMD ["python", "-O", "-m", "{{cookiecutter.package_name}}", "serve"]
