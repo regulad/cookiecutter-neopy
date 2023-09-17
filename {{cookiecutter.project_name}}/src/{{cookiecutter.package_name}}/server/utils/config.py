@@ -50,6 +50,7 @@ SOFTWARE.{%- endif %}
 from __future__ import annotations
 
 import os
+import typing
 from typing import Optional
 from typing import Type
 from typing import TypeVar
@@ -62,6 +63,7 @@ from ..._metadata import __title__
 ENVIRON_PREFIX = "{{cookiecutter.environ_prefix}}"
 
 
+@typing.no_type_check  # uses implementation specific details
 def validate_bind_port(port: int) -> bool:
     """Validates a port number, making sure it is valid and that we can bind to it."""
     if port < 1 or port > 65535:  # pragma: no cover

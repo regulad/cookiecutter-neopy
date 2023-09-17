@@ -83,10 +83,7 @@ async def _async_lifespan_manager() -> AsyncGenerator[None, None]:
 
 
 def run_coroutine_managed(coro: Callable[[], Coroutine[None, None, A_RETVAL]]) -> A_RETVAL:
-    """Manages running a coroutine with an async context manager making starting it from sync contexts easy as pie!"""
-    # https://github.com/aio-libs/aiopg/issues/678
-    if sys.version_info >= (3, 8) and sys.platform.lower().startswith("win"):  # pragma: no cover
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # type: ignore
+    """Abstract away lifecycle management for asyncio."""
 
     async def _async_bootstrap() -> A_RETVAL:
         async with _async_lifespan_manager():
