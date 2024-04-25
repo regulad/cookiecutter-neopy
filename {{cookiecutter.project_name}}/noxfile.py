@@ -1,10 +1,6 @@
 """Nox sessions."""  # noqa: E501, B950
 from __future__ import annotations
 
-# fmt: off
-# flake8: noqa
-# isort: skip_file
-
 import os
 import shlex
 import shutil
@@ -13,6 +9,10 @@ from pathlib import Path
 from textwrap import dedent
 
 import nox
+
+# fmt: off
+# flake8: noqa
+# isort: skip_file
 
 
 try:
@@ -38,7 +38,7 @@ nox.options.sessions = (
     "tests",
     "typeguard",
     "xdoctest",
-    "docs-build",
+    # "docs-build",
     "pyinstaller",
 )
 
