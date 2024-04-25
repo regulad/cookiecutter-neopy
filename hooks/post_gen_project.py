@@ -31,7 +31,7 @@ def get_cookiecutter_data():
 
 
 def get_if_verification_required():
-    return get_cookiecutter_data().get("enforce_checks_on_creation", False)
+    return bool(get_cookiecutter_data().get("enforce_checks_on_creation", False))
 
 
 def git_init():
@@ -63,26 +63,37 @@ def confirm_nox_install():
     """
     Confirms that nox is installed and operating correctly.
     """
+
+    args = [
+        "poetry",
+        "run",
+        "nox",
+    ]
+
+    if get_if_verification_required():
+        args.append("-x")
+
+    args.extend([
+        "--error-on-missing-interpreters",
+        "--error-on-external-run",
+        "--non-interactive",
+        "-k", "not safety",  # internet connection not guaranteed
+    ])
+
     try:
         subprocess.run(
-            [
-                "poetry",
-                "run",
-                "nox",
-                "-x",
-                "--error-on-missing-interpreters",
-                "--error-on-external-run",
-                "--non-interactive",
-                "-k", "not safety",  # internet connection not guaranteed
-            ],
+            args,
             check=True,
             # capture_output=True,
             stdin=subprocess.DEVNULL
         )
     except subprocess.CalledProcessError:
         print("Nox is not installed or is not operating correctly. "
-              "Please follow cookiecutter-hypermodern-python's instructions to install it.")
-        raise
+              "Please follow cookiecutter-neopy's instructions to install it.")
+        if get_if_verification_required():
+            raise
+        else:
+            print("Continuing without nox verification.")
 
 
 def print_notices():
@@ -112,12 +123,6 @@ if __name__ == "__main__":
     pre_commit_install()
 
     print("Validating project with nox (this WILL take a while)...")
-    try:
-        confirm_nox_install()
-    except subprocess.CalledProcessError:
-        if get_cookiecutter_data():
-            raise
-        else:
-            print("Nox validation failed. Continuing anyway.")
+    confirm_nox_install()
 
     print_notices()
