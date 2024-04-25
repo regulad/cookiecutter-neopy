@@ -51,7 +51,6 @@ from __future__ import annotations
 
 import logging
 
-
 try:
     from importlib.metadata import PackageMetadata
     from importlib.metadata import PackageNotFoundError
@@ -65,7 +64,6 @@ except ImportError:  # pragma: no cover
 logger = logging.getLogger(__package__)
 try:
     metadata: PackageMetadata = __load(__package__)
-    __copyright__ = "Copyright {{ cookiecutter.copyright_year }}"
     __uri__ = metadata["home-page"]
     __title__ = metadata["name"]
     __summary__ = metadata["summary"]
@@ -76,6 +74,16 @@ try:
     __contact__ = metadata["maintainer"]
 except PackageNotFoundError:  # pragma: no cover
     logger.error(f"Could not load package metadata for {__package__}. Is it installed?")
+    logger.debug("Falling back to static metadata.")
+    __uri__ = ""
+    __title__ = "{{ cookiecutter.friendly_name }}"
+    __summary__ = "{{ cookiecutter.description }}"
+    __license__ = "{{ cookiecutter.license }}"
+    __version__ = "0.0.0"
+    __author__ = "{{ cookiecutter.author }}"
+    __maintainer__ = "{{ cookiecutter.author }}"
+    __contact__ = "{{ cookiecutter.author }}"
+__copyright__ = "Copyright {{ cookiecutter.copyright_year }}"
 
 
 __all__ = (
