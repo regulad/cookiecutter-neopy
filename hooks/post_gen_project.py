@@ -21,6 +21,19 @@ def reindent_cookiecutter_json():
         io.write("\n")
 
 
+def get_cookiecutter_data():
+    path = Path(".cookiecutter.json")
+
+    with path.open() as io:
+        data = json.load(io)
+
+    return data
+
+
+def get_if_verification_required():
+    return get_cookiecutter_data().get("enforce_checks_on_creation", False)
+
+
 def git_init():
     """
     Initializes the repository with git.
@@ -34,6 +47,7 @@ def poetry_install():
     """
     Installs the project with Poetry.
     """
+    subprocess.run(["poetry", "lock"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
     subprocess.run(["poetry", "install"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
 
 
@@ -59,6 +73,7 @@ def confirm_nox_install():
                 "--error-on-missing-interpreters",
                 "--error-on-external-run",
                 "--non-interactive",
+                "-k", "not safety",  # internet connection not guaranteed
             ],
             check=True,
             # capture_output=True,
@@ -97,6 +112,12 @@ if __name__ == "__main__":
     pre_commit_install()
 
     print("Validating project with nox (this WILL take a while)...")
-    confirm_nox_install()
+    try:
+        confirm_nox_install()
+    except subprocess.CalledProcessError:
+        if get_cookiecutter_data():
+            raise
+        else:
+            print("Nox validation failed. Continuing anyway.")
 
     print_notices()

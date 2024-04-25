@@ -19,5 +19,6 @@
     "Development Status :: 6 - Mature",
     "Development Status :: 7 - Inactive"
   ],
-  "line_length": 100
+  "line_length": 100,
+  "enforce_checks_on_creation": false
 }
