@@ -78,6 +78,7 @@ def confirm_nox_install():
         "--error-on-external-run",
         "--non-interactive",
         "-k", "not safety",  # internet connection not guaranteed
+        "-k", "not docs",  # don't start a server it'll break cookiecutter
     ])
 
     try:
