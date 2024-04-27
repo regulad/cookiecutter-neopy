@@ -20,5 +20,6 @@
     "Development Status :: 7 - Inactive"
   ],
   "line_length": 100,
-  "enforce_checks_on_creation": false
+  "enforce_checks_on_creation": false,
+  "initialize_git": true
 }

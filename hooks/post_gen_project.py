@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -32,6 +33,29 @@ def get_cookiecutter_data():
 
 def get_if_verification_required():
     return bool(get_cookiecutter_data().get("enforce_checks_on_creation", False))
+
+
+def get_if_should_use_git():
+    return bool(get_cookiecutter_data().get("initialize_git", True))
+
+
+def remove_git_related_files():
+    """
+    Removes git related files from the project.
+    """
+    # We can't use rm, we may be on windows
+    # Stuff like .gitignore can stay because we could be in a monorepo
+    paths = [
+        Path(".pre-commit-config.yaml"),
+        Path(".github")
+    ]
+
+    for path in paths:
+        if path.exists():
+            if path.is_file():
+                path.unlink()
+            else:
+                shutil.rmtree(path)
 
 
 def git_init():
@@ -115,12 +139,17 @@ def print_notices():
 if __name__ == "__main__":
     reindent_cookiecutter_json()
 
-    print("Initializing git repository, installing Poetry dependencies, and installing pre-commit hooks...")
-    print("You will probably get prompted for your GPG key passphrase, if you have one configured. "
-          "If you don't have one, you should set one up!")
-    git_init()
+    if get_if_should_use_git():
+        print("Initializing git repository, installing Poetry dependencies, and installing pre-commit hooks...")
+        print("You will probably get prompted for your GPG key passphrase, if you have one configured. "
+              "If you don't have one, you should set one up!")
+        git_init()
+    else:
+        print("Installing Poetry dependencies w/o git repository initialization...")
+        remove_git_related_files()
     poetry_install()
-    pre_commit_install()
+    if get_if_verification_required():
+        pre_commit_install()
 
     print("Validating project with nox (this WILL take a while)...")
     confirm_nox_install()

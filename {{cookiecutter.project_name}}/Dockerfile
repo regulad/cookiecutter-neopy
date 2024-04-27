@@ -30,17 +30,15 @@ RUN pip install "poetry==$POETRY_VERSION"
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /code
-COPY poetry.lock pyproject.toml /code/
+# Although it would be very convienient to only copy the pyproject.toml file so that we can cache the dependencies,
+# Poetry requires the whole project to be present in order to install the dependencies
+COPY . /code
 
 # Install with poetry
 # pip install would probably work, too, but we'd have to make sure it's a recent enough pip
 # Don't bother creating a virtual env -- significant performance increase
 RUN poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --only main
-
-# Copy everything (code) to our workdir
-# Our .dockerignore file should be good enough that we don't have extra stuff
-COPY . /code
 
 # Build the package
 RUN poetry build

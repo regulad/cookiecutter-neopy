@@ -1,4 +1,5 @@
 """Nox sessions."""  # noqa: E501, B950
+
 from __future__ import annotations
 
 import os
@@ -120,6 +121,10 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
 @session(name="pre-commit", python=python_versions[0])
 def precommit(session: Session) -> None:
     """Lint using pre-commit."""
+    # See if we have a pre-commit configuration file.
+    if not Path(".pre-commit-config.yaml").exists():
+        session.skip("No .pre-commit-config.yaml file found.")
+        return
     args = session.posargs or [
         "run",
         "--all-files",

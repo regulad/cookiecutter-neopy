@@ -47,9 +47,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.{%- endif %}
 """  # noqa: E501, B950
+
 from __future__ import annotations
 
-from {{cookiecutter.package_name}}.__main__ import cli
+from
+
+{{cookiecutter.package_name}}.__main__ import cli
 
 
 if __name__ == "__main__":  # pragma: no cover
