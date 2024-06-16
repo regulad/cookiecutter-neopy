@@ -22,6 +22,10 @@ def reindent_cookiecutter_json():
         io.write("\n")
 
 
+def get_cwd_absolute():
+    return Path(".").resolve(strict=True)
+
+
 def get_cookiecutter_data():
     path = Path(".cookiecutter.json")
 
@@ -71,8 +75,10 @@ def poetry_install():
     """
     Installs the project with Poetry.
     """
-    subprocess.run(["poetry", "lock"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
-    subprocess.run(["poetry", "install"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
+    subprocess.run(["poetry", "lock"], check=True, capture_output=True, stdin=subprocess.DEVNULL,
+                   cwd=get_cwd_absolute())
+    subprocess.run(["poetry", "install"], check=True, capture_output=True, stdin=subprocess.DEVNULL,
+                   cwd=get_cwd_absolute())
 
 
 def pre_commit_install():

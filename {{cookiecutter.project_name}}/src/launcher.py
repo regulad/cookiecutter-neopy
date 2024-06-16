@@ -50,9 +50,7 @@ SOFTWARE.{%- endif %}
 
 from __future__ import annotations
 
-from
-
-{{cookiecutter.package_name}}.__main__ import cli
+from {{cookiecutter.package_name}}.__main__ import cli
 
 
 if __name__ == "__main__":  # pragma: no cover
