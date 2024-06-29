@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import logging
 
+
 try:
     from importlib.metadata import PackageMetadata
     from importlib.metadata import PackageNotFoundError

@@ -9,7 +9,7 @@ services:
     image: postgres:15.4-bookworm
     hostname: &pghost "postgres"
     restart: unless-stopped
-    read_only: true
+    #    read_only: true  # breaks postgres
     environment:
       PGDATA: &pgdata "/var/lib/postgresql/data"
       POSTGRES_PASSWORD: &pgpass {{ "${POSTGRES_PASSWORD:-" + cookiecutter.package_name + "}" }}
@@ -77,11 +77,10 @@ services:
         target: /tmp
         tmpfs:
           size: 524300000 # 500MiB in bytes
-      - type: volume
-        source: rabbitmq
-        target: /etc/rabbitmq
     networks:
       - default
+    depends_on:
+      - postgres
     ports: []
     #      - "9187:9187/tcp"
     logging: # Don't allow the logs to grow indefinitely
@@ -174,6 +173,47 @@ services:
         max-file: "3" # 3 files
     stdin_open: false # if you don't need stdin, remove this line
     tty: false # if you don't need a psuedo-tty, remove this line
+  redis_prometheus:
+    image: oliver006/redis_exporter:v1.61.0
+    hostname: "redis_prometheus"
+    restart: unless-stopped
+    read_only: true
+    environment:
+      REDIS_ADDR: "redis://redis:6379" # *redishost, *redisport
+      #      REDIS_USER: *pguser
+      #      REDIS_PASSWORD: *pgpass
+      # Generic
+      TZ: *tz
+      LANG: *lang
+      LC_ALL: *lang
+    deploy:
+      resources:
+        # Don't allow your container to use an infinite amount of resources
+        limits:
+          cpus: "2"
+          memory: 500M # https://www.rabbitmq.com/memory.html
+    ulimits: # Default ulimits are too low for some applications, and are also platform-specific. Declared explicitly here.
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 524300000 # 500MiB in bytes
+    networks:
+      - default
+    depends_on:
+      - redis
+    ports: []
+    #      - "9121:9121/tcp"
+    logging: # Don't allow the logs to grow indefinitely
+      options:
+        max-size: 10m # 10 megabytes
+        max-file: "3" # 3 files
+    stdin_open: false # if you don't need stdin, remove this line
+    tty: false # if you don't need a psuedo-tty, remove this line
   prometheus:
     image: prom/prometheus:v2.46.0
     hostname: &promhost "prometheus"
@@ -210,8 +250,8 @@ services:
     depends_on:
       - rabbitmq
       - postgres_prometheus
+      - redis_prometheus
       - {{cookiecutter.package_name}}
-      # redis prometheus support is only available in the enterprise version of redis (we use the community version)
     networks:
       - default
     ports:

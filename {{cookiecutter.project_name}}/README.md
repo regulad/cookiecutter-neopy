@@ -19,6 +19,13 @@
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
+## Deployment
+
+- Copy `.env.example` to `.env` and fill in the values
+- Copy `docker-compose.override.yml.example` to `docker-compose.override.yml` and fill in the values
+- Run `docker-compose up -d`
+- Ready to go!
+
 ## Features
 
 - TODO

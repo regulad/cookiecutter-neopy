@@ -31,7 +31,7 @@ rich = "^13.5.2"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.11"}
 asyncpg = "^0.28.0"
 dislog = {extras = ["discordpy"], version = "^3.0.0"}
-sqlmodel = {git = "https://github.com/AntonDeMeester/sqlmodel.git", rev = "40bcdfe"}
+sqlmodel = "^0.0.19"
 #sqlmodel = "^0.0.8"  # WARNING: SQModel does not officially support pydantic 2 and sqlalchemy 2, so this fork is used
 #strawberry-graphql = {extras = ["fastapi"], version = "^0.205.0"}  # GraphQL is not (currently) used in this project
 pydantic = "^2.3.0"
