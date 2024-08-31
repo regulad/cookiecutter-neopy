@@ -74,13 +74,14 @@ RUN addgroup -g $USER_GID -S $USERNAME \
 # This makes dockerfile_lint complain, but it's fine
 # dockerfile_lint - ignore
 USER $USERNAME
+ENV PATH="/home/$USERNAME/.local/bin:${PATH}"
 
 # Install the package in the user space
 COPY --from=builder /code/dist/{{cookiecutter.package_name}}-*.whl /tmp/
 RUN pip install --user /tmp/{{cookiecutter.package_name}}-*.whl
 
 # Now do something!
-CMD ["/home/{{cookiecutter.project_name}}/.local/bin/{{cookiecutter.project_name}}"]
+CMD ["{{cookiecutter.project_name}}"]
 
 # or expose a port:
 # EXPOSE 8080/tcp

@@ -3,7 +3,7 @@ services:
   # If you have any databases or other services that your application depends on, add them here.
   # You should also add a 'depend' clause to your application service so that it doesn't start until the other services are ready.
   {{cookiecutter.package_name}}:
-    image: ghcr.io/{{cookiecutter.github_user}}/{{cookiecutter.package_name}}:latest
+    image: ghcr.io/{{cookiecutter.github_user}}/{{cookiecutter.project_name}}:latest
     hostname: "{{cookiecutter.package_name}}" # Use this hostname with a reverse proxy like nginx attached to your network
     build:
       context: .
