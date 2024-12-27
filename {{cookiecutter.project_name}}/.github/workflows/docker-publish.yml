@@ -68,7 +68,7 @@ jobs:
           images: {{ "${{ env.REGISTRY }}" }}/{{ "${{ env.IMAGE_NAME }}" }}
           # the below values enable the latest tag only on the default branch
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable={{ "{{is_default_branch}}" }}
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
