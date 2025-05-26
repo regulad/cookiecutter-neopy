@@ -32,6 +32,7 @@ try:
     __maintainer__ = metadata["maintainer"]
     __contact__ = metadata["maintainer"]
 except PackageNotFoundError:  # pragma: no cover
+    # fmt: off
     logger.error(f"Could not load package metadata for {__package__}. Is it installed?")
     logger.debug("Falling back to static metadata.")
     __uri__ = ""
@@ -42,6 +43,7 @@ except PackageNotFoundError:  # pragma: no cover
     __author__ = "{{ cookiecutter.author }}"
     __maintainer__ = "{{ cookiecutter.author }}"
     __contact__ = "{{ cookiecutter.author }}"
+    # fmt: on
 __copyright__ = "Copyright {{ cookiecutter.copyright_year }}"
 
 
