@@ -30,7 +30,7 @@ except ImportError:
 
 
 package = "{{cookiecutter.package_name}}"
-python_versions = ["3.11"]
+python_versions = ["3.12", "3.11"]
 nox.needs_version = ">= 2023.4.22"
 nox.options.sessions = (
     "pre-commit",
@@ -123,6 +123,10 @@ def precommit(session: Session) -> None:
     """Lint using pre-commit."""
     # See if we have a pre-commit configuration file.
     if not Path(".pre-commit-config.yaml").exists():
+        # if statically analyzed, this branch may never be executed.
+        # however, this template is designed to work without a .pre-commit-config.yaml file,
+        # and as such must accommodate for this case.
+
         session.skip("No .pre-commit-config.yaml file found.")
         return
     args = session.posargs or [
@@ -145,7 +149,9 @@ def precommit(session: Session) -> None:
         "pre-commit-hooks",
         "pyupgrade",
     )
-    session.run("pre-commit", *args)
+    # if this is being run in the template initialization hook, we may not have an internet connection or data may
+    # have changed. therefore, we need to skip relocking the poetry file.
+    session.run("pre-commit", *args, env={"SKIP": "poetry-lock"})
     if args and args[0] == "install":
         activate_virtualenv_in_precommit_hooks(session)
 
@@ -165,8 +171,6 @@ def mypy(session: Session) -> None:
     session.install(".")
     session.install("mypy", "pytest")
     session.run("mypy", *args)
-    if not session.posargs:
-        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
 
 
 @session(python=python_versions)

@@ -1,8 +1,9 @@
 """Test cases for the __main__ module."""
 
 import pytest
-from {{cookiecutter.package_name}}.__main__ import cli
 from typer.testing import CliRunner
+
+from {{cookiecutter.package_name}}.__main__ import cli
 
 
 @pytest.fixture

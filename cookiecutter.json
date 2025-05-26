@@ -9,7 +9,7 @@
   "github_user": "regulad",
   "version": "0.1.0",
   "copyright_year": "{% now 'utc', '%Y' %}",
-  "license": ["GPL-3.0", "MIT", "Apache-2.0"],
+  "license": ["AGPL-3.0-or-later", "GPL-3.0-or-later", "MIT", "Apache-2.0"],
   "development_status": [
     "Development Status :: 1 - Planning",
     "Development Status :: 2 - Pre-Alpha",
@@ -20,6 +20,6 @@
     "Development Status :: 7 - Inactive"
   ],
   "line_length": 100,
-  "enforce_checks_on_creation": false,
+  "enforce_checks_on_creation": true,
   "initialize_git": true
 }

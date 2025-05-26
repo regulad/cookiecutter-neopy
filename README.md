@@ -28,11 +28,23 @@ For all of these reasons, I decided to fork `cookiecutter-hypermodern-python` an
 
 ## Usage
 
-All testing was done on cookiecutter 2.3.0 and Python 3.11.4.
-
 ```console
-cookiecutter gh:regulad/cookiecutter-neopy --checkout=2023.8.4
+# install pip & pipx through your distribution's package manager
+pipx install poetry
+pipx inject poetry poetry-plugin-export
+
+pipx install nox
+pipx inject nox nox-poetry
+
+pipx install cookiecutter
+
+# confirm poetry can find both Python~3.11 and Python~3.12
+pipx python list
+
+cookiecutter gh:regulad/cookiecutter-neopy
 ```
+
+Please note, you must have the following installed and on `PATH`: `nox`, `Python 3.11/3.12`, `poetry` & `git`
 
 The following segment of the README is the original README from `cookiecutter-hypermodern-python`.
 

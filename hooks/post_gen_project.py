@@ -2,6 +2,7 @@
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -66,26 +67,24 @@ def git_init():
     """
     Initializes the repository with git.
     """
-    subprocess.run(["git", "init", "-q", "-b", "master"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
-    subprocess.run(["git", "add", "."], check=True, capture_output=True, stdin=subprocess.DEVNULL)
-    subprocess.run(["git", "commit", "-m", "initial commit"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
+    subprocess.run(["git", "init", "-q", "-b", "master"], check=True, stdin=subprocess.DEVNULL)
+    subprocess.run(["git", "add", "."], check=True,stdin=subprocess.DEVNULL)
+    subprocess.run(["git", "commit", "-m", "initial commit"], check=True,stdin=subprocess.DEVNULL)
 
 
 def poetry_install():
     """
     Installs the project with Poetry.
     """
-    subprocess.run(["poetry", "lock"], check=True, capture_output=True, stdin=subprocess.DEVNULL,
-                   cwd=get_cwd_absolute())
-    subprocess.run(["poetry", "install"], check=True, capture_output=True, stdin=subprocess.DEVNULL,
-                   cwd=get_cwd_absolute())
+    subprocess.run(["poetry", "--no-ansi", "-n", "lock"], check=True, stdin=subprocess.DEVNULL, cwd=get_cwd_absolute())
+    subprocess.run(["poetry", "--no-ansi", "-n", "install"], check=True, stdin=subprocess.DEVNULL, cwd=get_cwd_absolute())
 
 
 def pre_commit_install():
     """
     Installs pre-commit into the repository.
     """
-    subprocess.run(["poetry", "run", "pre-commit", "install"], check=True, capture_output=True,
+    subprocess.run(["poetry", "--no-ansi", "-n", "run", "pre-commit", "install"], check=True, stderr=sys.stderr, 
                    stdin=subprocess.DEVNULL)
 
 
@@ -96,6 +95,8 @@ def confirm_nox_install():
 
     args = [
         "poetry",
+        "--no-ansi",
+        "-n",
         "run",
         "nox",
     ]
@@ -114,7 +115,6 @@ def confirm_nox_install():
         subprocess.run(
             args,
             check=True,
-            # capture_output=True,
             stdin=subprocess.DEVNULL
         )
     except subprocess.CalledProcessError:
